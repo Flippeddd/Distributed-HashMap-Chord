@@ -20,12 +20,12 @@ public class Node {
      * @return id's successor node
      */
     // node?
-    public Node find_successor(int id) {
-        Node prevNode = find_predecessor(id);
+    public Node find_successor(Node node,int id) {
+        Node prevNode = find_predecessor(,id);
         return prevNode.successor;
     }
-    private Node find_predecessor(int id) {
-        Node temp = new Node(nid = id);
+    private Node find_predecessor(Node node, int id) {
+        Node temp = node;
         while (!inCurInterval(temp, temp.successor, id)) {
             temp = closest_preceding_finger(temp, id);
         }
@@ -78,22 +78,22 @@ public class Node {
     private void initFingerTable(int id, Node existNode){
         Node newNode = new Node(nid = id);
         FingerTable ft = newNode.fingerTable;
-        ft.getFinger(1).node = newNode.find_successor(existNode.fingerTable.getFinger(1).start);
-        newNode.predecessor = newNode.successor.predecessor;
-        newNode.successor.predecessor = newNode;
+        ft.getFinger(1).node = newNode.find_successor(existNode,existNode.fingerTable.getFinger(1).start);
+        newNode.predecessor = ft.getFinger(1).node.predecessor;
+        ft.getFinger(1).node.predecessor = newNode;
         for(int i = 0; i < 4; i++){
             int start = ft.getFinger(i+1).start;
             if(start >= id && start < getId(ft.getFinger(i).node)){
                 ft.getFinger(i+1).node = ft.getFinger(i).node;
             }else{
-                ft.getFinger(i+1).node = existNode.find_successor(ft.getFinger(i+1).start);
+                ft.getFinger(i+1).node = existNode.find_successor(existNode,ft.getFinger(i+1).start);
             }
         }
     }
     private void updateOthers(int id){
         Node newNode = new Node(nid = id);
         for(int i = 0; i < 4; i++) {
-            Node temp = newNode.find_predecessor(id - (int)Math.pow(2, i));
+            Node temp = newNode.find_predecessor(newNode,id - (int)Math.pow(2, i));
             updateFingerTable(getId(temp),newNode,i);
         }
     }
@@ -107,13 +107,12 @@ public class Node {
             updateFingerTable(getId(temp),node,i);
         }
     }
-    public void leave(int id){
+    public void leave(Node node){
+        Node prev = node.predecessor;
+        Node next = node.successor;
 
     }
-    public int lookup(int id){
 
-        return 0;
-    }
 
 
     /**
