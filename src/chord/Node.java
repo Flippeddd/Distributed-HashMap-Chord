@@ -19,8 +19,9 @@ public class Node {
      * @param id
      * @return id's successor node
      */
-    public Node find_successor(Node node, int id) {
-        Node prevNode = find_predecessor(node, id);
+    // node?
+    public Node find_successor(Node node,int id) {
+        Node prevNode = find_predecessor(node,id);
         return prevNode.successor;
     }
     private Node find_predecessor(Node node, int id) {
@@ -57,9 +58,65 @@ public class Node {
         }
         return cur;
     }
+    private int getId(Node node){
+        return node.nid;
+    }
+    public void join(int id, Node existNode){
+        // need to edit
+        Node newNode = new Node(nid = id);
+        if(existNode != null){
+            initFingerTable(id,existNode);
+            updateOthers(id);
+        }else{
+            // the join node is the only node in the chord
+            for(int i = 0; i < 4; i++){
+                newNode.fingerTable.getFinger(i).node = newNode;
+            }
+            newNode.predecessor = newNode;
+        }
+    }
+    private void initFingerTable(int id, Node existNode){
+        Node newNode = new Node(nid = id);
+        FingerTable ft = newNode.fingerTable;
+        ft.getFinger(1).node = newNode.find_successor(existNode,existNode.fingerTable.getFinger(1).start);
+        newNode.predecessor = ft.getFinger(1).node.predecessor;
+        ft.getFinger(1).node.predecessor = newNode;
+        for(int i = 0; i < 4; i++){
+            int start = ft.getFinger(i+1).start;
+            if(start >= id && start < getId(ft.getFinger(i).node)){
+                ft.getFinger(i+1).node = ft.getFinger(i).node;
+            }else{
+                ft.getFinger(i+1).node = existNode.find_successor(existNode,ft.getFinger(i+1).start);
+            }
+        }
+    }
+    private void updateOthers(int id){
+        Node newNode = new Node(nid = id);
+        for(int i = 0; i < 4; i++) {
+            Node temp = newNode.find_predecessor(newNode,id - (int)Math.pow(2, i));
+            updateFingerTable(getId(temp),newNode,i);
+        }
+    }
+    private void updateFingerTable(int id, Node node,int i){
+        Node newNode = new Node(nid = id);
+        int tid = getId(node);
+        FingerTable ft = newNode.fingerTable;
+        if(tid >= id && tid < getId(ft.getFinger(i).node)){
+            ft.getFinger(i).node = node;
+            Node temp = newNode.predecessor;
+            updateFingerTable(getId(temp),node,i);
+        }
+    }
+    public void leave(Node node){
+        Node prev = node.predecessor;
+        Node next = node.successor;
+
+    }
+
+
 
     /**
-     * @TODO updateFingers, join, leave
+     * @TODO updateFingers, join, leave, lookup
      */
 
 }
